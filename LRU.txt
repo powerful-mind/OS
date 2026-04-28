@@ -1,0 +1,62 @@
+#include <stdio.h>
+
+int main() {
+    int frames = 3;
+    int page[] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2};
+    int n = 15;
+
+    int frame[3], time[3];
+    int i, j, counter = 0, faults = 0;
+
+    // Initialize frames and time
+    for(i = 0; i < frames; i++) {
+        frame[i] = -1;
+        time[i] = 0;
+    }
+
+    printf("LRU Page Replacement:\n");
+
+    for(i = 0; i < n; i++) {
+        int found = 0;
+
+        // Check HIT
+        for(j = 0; j < frames; j++) {
+            if(frame[j] == page[i]) {
+                counter++;
+                time[j] = counter;   // update recently used
+                found = 1;
+                break;
+            }
+        }
+
+        // PAGE FAULT
+        if(!found) {
+            int lru = 0;
+
+            // Find least recently used
+            for(j = 1; j < frames; j++) {
+                if(time[j] < time[lru]) {
+                    lru = j;
+                }
+            }
+
+            frame[lru] = page[i];
+            counter++;
+            time[lru] = counter;
+            faults++;
+
+            printf("Page %d -> ", page[i]);
+            for(j = 0; j < frames; j++) {
+                if(frame[j] != -1)
+                    printf("%d ", frame[j]);
+                else
+                    printf("- ");
+            }
+            printf("\n");
+        }
+    }
+
+    printf("Total Page Faults = %d\n", faults);
+
+    return 0;
+}
