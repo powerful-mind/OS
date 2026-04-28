@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Process {
+    int pid;
+    int arrivalTime;
+    int burstTime;
+    int completionTime;
+    int waitingTime;
+    int turnaroundTime;
+    int completed;
+};
+
+int main() {
+    int n;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+
+    // Input
+    for (int i = 0; i < n; i++) {
+        p[i].pid = i + 1;
+        printf("Enter Arrival Time for Process %d: ", p[i].pid);
+        scanf("%d", &p[i].arrivalTime);
+        printf("Enter Burst Time for Process %d: ", p[i].pid);
+        scanf("%d", &p[i].burstTime);
+        p[i].completed = 0;
+    }
+
+    int currentTime = 0, completedCount = 0;
+
+    // Gantt chart
+    char ganttLabel[2 * n][10];
+    int ganttTime[2 * n + 1];
+    int g = 0;
+
+    while (completedCount < n) {
+        int idx = -1;
+        int minBurst = 1000000000;
+
+        // Find shortest job among arrived processes
+        for (int i = 0; i < n; i++) {
+            if (p[i].arrivalTime <= currentTime && p[i].completed == 0) {
+                if (p[i].burstTime < minBurst) {
+                    minBurst = p[i].burstTime;
+                    idx = i;
+                }
+            }
+        }
+
+        if (idx == -1) {
+            // CPU IDLE
+            strcpy(ganttLabel[g], "IDLE");
+            ganttTime[g] = currentTime;
+            currentTime++;
+            ganttTime[g + 1] = currentTime;
+            g++;
+        } else {
+            // Execute selected process
+            sprintf(ganttLabel[g], "P%d", p[idx].pid);
+            ganttTime[g] = currentTime;
+
+            currentTime += p[idx].burstTime;
+
+            ganttTime[g + 1] = currentTime;
+            g++;
+
+            // Calculate times
+            p[idx].completionTime = currentTime;
+            p[idx].turnaroundTime = p[idx].completionTime - p[idx].arrivalTime;
+            p[idx].waitingTime = p[idx].turnaroundTime - p[idx].burstTime;
+
+            p[idx].completed = 1;
+            completedCount++;
+        }
+    }
+
+    float totalWT = 0, totalTAT = 0;
+
+    printf("\nPID\tAT\tBT\tCT\tWT\tTAT\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%d\t%d\t%d\n",
+               p[i].pid,
+               p[i].arrivalTime,
+               p[i].burstTime,
+               p[i].completionTime,
+               p[i].waitingTime,
+               p[i].turnaroundTime);
+
+        totalWT += p[i].waitingTime;
+        totalTAT += p[i].turnaroundTime;
+    }
+
+    // Gantt Chart
+    printf("\nGantt Chart:\n");
+
+    for (int i = 0; i < g; i++) printf("--------");
+    printf("-\n|");
+
+    for (int i = 0; i < g; i++) {
+        printf(" %-5s |", ganttLabel[i]);
+    }
+
+    printf("\n");
+
+    for (int i = 0; i < g; i++) printf("--------");
+    printf("-\n");
+
+    for (int i = 0; i <= g; i++) {
+        printf("%-8d", ganttTime[i]);
+    }
+
+    printf("\n\nAverage Waiting Time: %.2f", totalWT / n);
+    printf("\nAverage Turnaround Time: %.2f\n", totalTAT / n);
+
+    return 0;
+}
