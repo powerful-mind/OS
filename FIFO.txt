@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+int main() {
+    int frames = 3;
+    int pages[] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2, 1, 2};
+    int n = 15;
+
+    int frame[3];
+    int i, j, pos = 0, faults = 0;
+
+    // Initialize frames with -1 (empty)
+    for(i = 0; i < frames; i++) {
+        frame[i] = -1;
+    }
+
+    printf("FIFO Page Replacement:\n");
+
+    for(i = 0; i < n; i++) {
+        int found = 0;
+
+        // Check if page already exists (HIT)
+        for(j = 0; j < frames; j++) {
+            if(frame[j] == pages[i]) {
+                found = 1;
+                break;
+            }
+        }
+
+        // If not found → PAGE FAULT
+        if(!found) {
+            frame[pos] = pages[i];
+            pos = (pos + 1) % frames;  // circular queue
+            faults++;
+
+            printf("Page %d -> ", pages[i]);
+            for(j = 0; j < frames; j++) {
+                if(frame[j] != -1)
+                    printf("%d ", frame[j]);
+                else
+                    printf("- ");
+            }
+            printf("\n");
+        }
+    }
+
+    printf("Total Page Faults = %d\n", faults);
+
+    return 0;
+}
