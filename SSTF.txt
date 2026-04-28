@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, head;
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    int req[n], visited[n];
+
+    printf("Enter the requests:\n");
+    for(int i = 0; i < n; i++) {
+        scanf("%d", &req[i]);
+        visited[i] = 0; // mark all as not visited
+    }
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    int total_seek = 0;
+
+    printf("\nSeek Sequence:\n");
+
+    // SSTF logic
+    for(int i = 0; i < n; i++) {
+        int min = 9999, index = -1;
+
+        // find closest request
+        for(int j = 0; j < n; j++) {
+            if(!visited[j]) {
+                int dist = abs(head - req[j]);
+
+                if(dist < min) {
+                    min = dist;
+                    index = j;
+                }
+            }
+        }
+
+        // move head to closest request
+        visited[index] = 1;
+        total_seek += min;
+        head = req[index];
+
+        printf("%d -> ", head);
+    }
+
+    printf("\n\nTotal Seek Time = %d\n", total_seek);
+
+    return 0;
+}
