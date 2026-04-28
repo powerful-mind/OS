@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Bubble sort
+void sort(int a[], int n) {
+    for(int i = 0; i < n-1; i++) {
+        for(int j = 0; j < n-i-1; j++) {
+            if(a[j] > a[j+1]) {
+                int t = a[j];
+                a[j] = a[j+1];
+                a[j+1] = t;
+            }
+        }
+    }
+}
+
+int main() {
+    int n, head, dir, disk_size;
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    int req[n];
+
+    printf("Enter the requests:\n");
+    for(int i = 0; i < n; i++)
+        scanf("%d", &req[i]);
+
+    printf("Enter head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk size: ");
+    scanf("%d", &disk_size);
+
+    printf("Enter direction (1 = right, 0 = left): ");
+    scanf("%d", &dir);
+
+    // Sort requests
+    sort(req, n);
+
+    int total_seek = 0;
+    int pos = n;
+
+    // Find split position
+    for(int i = 0; i < n; i++) {
+        if(req[i] >= head) {
+            pos = i;
+            break;
+        }
+    }
+
+    printf("\nSeek Sequence:\n");
+
+    if(dir == 1) { // Move right
+        // Go right
+        for(int i = pos; i < n; i++) {
+            printf("%d -> ", req[i]);
+            total_seek += abs(head - req[i]);
+            head = req[i];
+        }
+
+        // Go to end
+        total_seek += abs(head - (disk_size - 1));
+        head = disk_size - 1;
+
+        // Reverse: go left
+        for(int i = pos - 1; i >= 0; i--) {
+            printf("%d -> ", req[i]);
+            total_seek += abs(head - req[i]);
+            head = req[i];
+        }
+    }
+    else { // Move left
+        // Go left
+        for(int i = pos - 1; i >= 0; i--) {
+            printf("%d -> ", req[i]);
+            total_seek += abs(head - req[i]);
+            head = req[i];
+        }
+
+        // Go to start
+        total_seek += abs(head - 0);
+        head = 0;
+
+        // Reverse: go right
+        for(int i = pos; i < n; i++) {
+            printf("%d -> ", req[i]);
+            total_seek += abs(head - req[i]);
+            head = req[i];
+        }
+    }
+
+    printf("\n\nTotal Seek Time = %d\n", total_seek);
+
+    return 0;
+}
